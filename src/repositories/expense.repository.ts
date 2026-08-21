@@ -8,6 +8,14 @@ export type Expense = {
   amount: number;
 };
 
+type UpdateExpenseParameter = {
+  id: number;
+  amount?: number;
+  date?: string;
+  subcategoryId?: number;
+  description?: string | null;
+};
+
 export const getExpense = (id: number): Expense | undefined => {
   return db
     .prepare(
@@ -71,35 +79,63 @@ export const createExpense = ({
   };
 };
 
-export const updateExpense = (
-  id: number,
-  { date, subcategoryId, description, amount }: Omit<Expense, "id">,
-): Expense => {
+export const updateExpense = ({
+  id,
+  amount,
+  date,
+  subcategoryId,
+  description,
+}: UpdateExpenseParameter): Expense => {
+  const fields: string[] = [];
+  const parameters: unknown[] = [];
+
+  if (amount !== undefined) {
+    fields.push("amount = ?");
+    parameters.push(amount);
+  }
+
+  if (date !== undefined) {
+    fields.push("date = ?");
+    parameters.push(date);
+  }
+
+  if (subcategoryId !== undefined) {
+    fields.push("subcategory_id = ?");
+    parameters.push(subcategoryId);
+  }
+
+  if (description !== undefined) {
+    fields.push("description = ?");
+    parameters.push(description);
+  }
+
+  if (fields.length === 0) {
+    throw new Error("No fields provided for update");
+  }
+
+  parameters.push(id);
+
   const result = db
     .prepare(
       `
       UPDATE expenses
-      SET
-        date = ?,
-        subcategory_id = ?,
-        description = ?,
-        amount = ?
+      SET ${fields.join(", ")}
       WHERE id = ?
     `,
     )
-    .run(date, subcategoryId, description, amount, id);
+    .run(...parameters);
 
   if (result.changes === 0) {
     throw new Error(`Expense with id ${id} not found`);
   }
 
-  return {
-    id,
-    date,
-    subcategoryId,
-    description,
-    amount,
-  };
+  const expense = getExpense(id);
+
+  if (!expense) {
+    throw new Error(`Expense with id ${id} not found`);
+  }
+
+  return expense;
 };
 
 export const deleteExpense = (id: number): void => {

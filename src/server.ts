@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { addExpense, getExpenses } from "./services/expense.service.js";
 import { getCategoriesWithSubcategories } from "./repositories/category.repository.js";
+import {
+  deleteExpense,
+  updateExpense,
+} from "./repositories/expense.repository.js";
 
 const server = new FastMCP({
   name: "expense-tracker",
@@ -46,6 +50,53 @@ server.addTool({
   }),
   execute: async ({ fromDate, toDate, category, subcategory }) => {
     const expense = getExpenses({ fromDate, toDate, category, subcategory });
+    return JSON.stringify(expense);
+  },
+});
+
+server.addTool({
+  name: "delete_expense",
+  description: `
+Delete an expense permanently.
+
+This is a destructive operation.
+Human approval is required before deletion.
+`,
+  parameters: z.object({
+    id: z.number().int().positive(),
+  }),
+  execute: async ({ id }) => {
+    deleteExpense(id);
+
+    return `Expense ${id} deleted successfully.`;
+  },
+});
+
+server.addTool({
+  name: "update_expense",
+  description: `
+Update an existing expense.
+
+Only the fields that need to be changed should be provided.
+The expense ID is required.
+`,
+  parameters: z.object({
+    id: z.number().int().positive(),
+    amount: z.number().positive().optional(),
+    date: z.string().optional(),
+    subcategoryId: z.number().int().positive().optional(),
+    description: z.string().nullable().optional(),
+  }),
+
+  execute: async ({ id, amount, date, subcategoryId, description }) => {
+    const expense = updateExpense({
+      id,
+      amount,
+      date,
+      subcategoryId,
+      description,
+    });
+
     return JSON.stringify(expense);
   },
 });
