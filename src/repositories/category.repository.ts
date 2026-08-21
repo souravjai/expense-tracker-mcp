@@ -82,3 +82,16 @@ export const deleteCategory = (id: number): void => {
     throw new Error(`Category with id ${id} not found`);
   }
 };
+
+export const getCategoriesWithSubcategories = () => {
+  return db
+    .prepare(
+      `
+    SELECT c.name as catergory_name,s.name as subcatergory_name
+    FROM categories c
+    LEFT JOIN subcategories s
+    ON s.category_id = c.id 
+    `,
+    )
+    .all() as { category_name: String; subcategory_name: String }[];
+};

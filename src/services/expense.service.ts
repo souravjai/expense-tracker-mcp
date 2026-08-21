@@ -19,6 +19,13 @@ type AddExpenseParameter = {
   date?: string;
 };
 
+type GetExpensesParameter = {
+  fromDate?: string;
+  toDate?: string;
+  category?: string;
+  subcategory?: string;
+};
+
 export const addExpense = db.transaction(
   ({
     amount,
@@ -44,3 +51,54 @@ export const addExpense = db.transaction(
     });
   },
 );
+
+export const getExpenses = ({
+  fromDate,
+  toDate,
+  category,
+  subcategory,
+}: GetExpensesParameter) => {
+  let statement = `
+    SELECT
+      e.id,
+      e.date,
+      c.name AS category,
+      s.name AS subcategory,
+      e.description,
+      e.amount
+    FROM expenses e
+    JOIN subcategories s ON e.subcategory_id = s.id
+    JOIN categories c ON s.category_id = c.id
+  `;
+
+  const parameters: string[] = [];
+  const conditions: string[] = [];
+
+  if (fromDate) {
+    conditions.push("e.date >= ?");
+    parameters.push(fromDate);
+  }
+
+  if (toDate) {
+    conditions.push("e.date <= ?");
+    parameters.push(toDate);
+  }
+
+  if (category) {
+    conditions.push("LOWER(c.name) = LOWER(?)");
+    parameters.push(category);
+  }
+
+  if (subcategory) {
+    conditions.push("LOWER(s.name) = LOWER(?)");
+    parameters.push(subcategory);
+  }
+
+  if (conditions.length > 0) {
+    statement += ` WHERE ${conditions.join(" AND ")}`;
+  }
+
+  statement += ` ORDER BY e.date DESC`;
+
+  return db.prepare(statement).all(...parameters);
+};
