@@ -1,8 +1,12 @@
 import Database from "better-sqlite3";
-import path from "node:path";
 
-const dbPath = path.resolve("expenses.db");
-console.error(`Database: ${dbPath}`);
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const dbPath = path.resolve(__dirname, "../expenses.db");
 
 const db = new Database(dbPath);
 

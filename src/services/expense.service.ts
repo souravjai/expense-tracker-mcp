@@ -9,7 +9,7 @@ import {
 } from "../repositories/subcategory.repository.js";
 
 import { createExpense } from "../repositories/expense.repository.js";
-import db, { transaction } from "../db.js";
+import db from "../db.js";
 
 type AddExpenseParameter = {
   amount: number;

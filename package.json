@@ -6,17 +6,21 @@
   "scripts": {
     "start": "tsx src/server.ts",
     "build": "tsc",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "mcp-inspect": "cross-env CLIENT_PORT=8080 MCP_SANDBOX_PORT=8081 mcp-inspector npx tsx src/server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "better-sqlite3": "^13.0.3"
+    "better-sqlite3": "^13.0.3",
+    "fastmcp": "^4.16.8"
   },
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "^2.3.0",
     "@types/better-sqlite3": "^9.6.0",
+    "cross-env": "^10.1.0",
     "tsx": "^4.23.12"
   }
 }
