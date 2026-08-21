@@ -1,0 +1,22 @@
+{
+  "name": "expense-tracker-mcp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "build": "tsc",
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "tsx": "^4.23.12"
+  }
+}
